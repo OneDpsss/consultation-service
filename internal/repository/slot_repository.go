@@ -6,10 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+// SlotRepository is the data-access layer for teacher consultation slots.
 type SlotRepository struct {
 	db *gorm.DB
 }
 
+// NewSlotRepository creates a SlotRepository over the given GORM connection.
 func NewSlotRepository(db *gorm.DB) *SlotRepository {
 	return &SlotRepository{db: db}
 }
@@ -34,6 +36,10 @@ func (r *SlotRepository) CreateSlot(slot *models.ConsultationSlot) error {
 	})
 }
 
+// ListByTeacher returns every consultation slot opened by teacherID,
+// in no particular guaranteed order (whatever the database returns).
+// Used by "просмотреть список своих консультационных слотов" (ТЗ 3.1.1,
+// teacher side).
 func (r *SlotRepository) ListByTeacher(teacherID uint) ([]models.ConsultationSlot, error) {
 	var slots []models.ConsultationSlot
 	err := r.db.Where("teacher_id = ?", teacherID).Find(&slots).Error

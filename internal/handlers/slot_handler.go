@@ -26,12 +26,13 @@ func NewSlotHandler(repo *repository.SlotRepository) *SlotHandler {
 	return &SlotHandler{repo: repo}
 }
 
+// createSlotRequest is the JSON body expected by Create.
 type createSlotRequest struct {
-	TeacherID    uint      `json:"teacher_id"`
-	DisciplineID uint      `json:"discipline_id"`
-	StartsAt     time.Time `json:"starts_at"`
-	EndsAt       time.Time `json:"ends_at"`
-	Capacity     int       `json:"capacity"`
+	TeacherID    uint      `json:"teacher_id"`    // идентификатор преподавателя-владельца слота
+	DisciplineID uint      `json:"discipline_id"` // идентификатор дисциплины
+	StartsAt     time.Time `json:"starts_at"`     // время начала консультации
+	EndsAt       time.Time `json:"ends_at"`       // время окончания консультации
+	Capacity     int       `json:"capacity"`      // число студентов, вмещаемых слотом; <=0 трактуется как 1
 }
 
 // Create handles POST /slots — создание преподавателем нового

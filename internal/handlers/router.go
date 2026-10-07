@@ -7,7 +7,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewRouter wires all handlers to their routes.
+// NewRouter builds the service's full HTTP route table, wiring each
+// handler to its repository (backed by db) and binding it to a path.
+//
+// Routes:
+//
+//	POST   /bookings                — записаться на консультацию
+//	DELETE /bookings/{id}           — отменить запись
+//	GET    /students/{id}/bookings  — список записей студента
+//	POST   /slots                   — создать консультационный слот
+//	GET    /teachers/{id}/slots     — список слотов преподавателя
 func NewRouter(db *gorm.DB) *mux.Router {
 	bookingRepo := repository.NewBookingRepository(db)
 	bookingHandler := NewBookingHandler(bookingRepo)

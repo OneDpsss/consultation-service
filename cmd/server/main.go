@@ -1,3 +1,6 @@
+// Command server is the entrypoint of the consultation-booking HTTP
+// service: it loads configuration, opens the database, builds the route
+// table and starts listening.
 package main
 
 import (
@@ -9,6 +12,10 @@ import (
 	"consultation-service/internal/repository"
 )
 
+// main loads Config, connects to PostgreSQL (running GORM auto-migration
+// as a side effect of repository.NewDB), builds the router and blocks
+// on http.ListenAndServe. Any setup failure is fatal — the service has
+// nothing useful to do without a database or a listening socket.
 func main() {
 	cfg := config.Load()
 
