@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"consultation-service/internal/repository"
+	"github.com/OneDpsss/consultation-service/internal/repository"
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"

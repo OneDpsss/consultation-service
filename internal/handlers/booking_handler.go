@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"consultation-service/internal/repository"
+	"github.com/OneDpsss/consultation-service/internal/repository"
 
 	"github.com/gorilla/mux"
 )

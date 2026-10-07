@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"consultation-service/internal/models"
+	"github.com/OneDpsss/consultation-service/internal/models"
 
 	"gorm.io/gorm"
 )

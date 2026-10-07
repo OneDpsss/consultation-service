@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"consultation-service/internal/models"
+	"github.com/OneDpsss/consultation-service/internal/models"
 
 	"gorm.io/gorm"
 )

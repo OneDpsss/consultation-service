@@ -3,7 +3,7 @@
 package repository
 
 import (
-	"consultation-service/internal/models"
+	"github.com/OneDpsss/consultation-service/internal/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"consultation-service/internal/config"
-	"consultation-service/internal/handlers"
-	"consultation-service/internal/repository"
+	"github.com/OneDpsss/consultation-service/internal/config"
+	"github.com/OneDpsss/consultation-service/internal/handlers"
+	"github.com/OneDpsss/consultation-service/internal/repository"
 )
 
 // main загружает Config, подключается к PostgreSQL (попутно прогоняя

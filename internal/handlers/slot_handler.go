@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"consultation-service/internal/models"
-	"consultation-service/internal/repository"
+	"github.com/OneDpsss/consultation-service/internal/models"
+	"github.com/OneDpsss/consultation-service/internal/repository"
 
 	"github.com/gorilla/mux"
 )
