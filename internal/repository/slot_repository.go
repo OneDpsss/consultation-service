@@ -6,19 +6,21 @@ import (
 	"gorm.io/gorm"
 )
 
-// SlotRepository is the data-access layer for teacher consultation slots.
+// SlotRepository — слой доступа к данным для слотов консультаций
+// преподавателя.
 type SlotRepository struct {
 	db *gorm.DB
 }
 
-// NewSlotRepository creates a SlotRepository over the given GORM connection.
+// NewSlotRepository создаёт SlotRepository поверх переданного подключения
+// GORM.
 func NewSlotRepository(db *gorm.DB) *SlotRepository {
 	return &SlotRepository{db: db}
 }
 
-// CreateSlot inserts a new consultation slot for a teacher.
-// The overlap check (ТЗ 3.2.2 — "отсутствие пересечений консультационных
-// слотов у преподавателя") is enforced before insertion.
+// CreateSlot создаёт новый слот консультации для преподавателя.
+// Перед вставкой проверяется, что слот не пересекается по времени с уже
+// существующими слотами этого же преподавателя.
 func (r *SlotRepository) CreateSlot(slot *models.ConsultationSlot) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var overlapCount int64
@@ -36,10 +38,8 @@ func (r *SlotRepository) CreateSlot(slot *models.ConsultationSlot) error {
 	})
 }
 
-// ListByTeacher returns every consultation slot opened by teacherID,
-// in no particular guaranteed order (whatever the database returns).
-// Used by "просмотреть список своих консультационных слотов" (ТЗ 3.1.1,
-// teacher side).
+// ListByTeacher возвращает все слоты консультаций, открытые
+// преподавателем teacherID.
 func (r *SlotRepository) ListByTeacher(teacherID uint) ([]models.ConsultationSlot, error) {
 	var slots []models.ConsultationSlot
 	err := r.db.Where("teacher_id = ?", teacherID).Find(&slots).Error

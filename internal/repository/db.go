@@ -1,5 +1,5 @@
-// Package repository содержит слой доступа к данным: подключение к
-// PostgreSQL через GORM и репозитории для слотов и записей на консультацию.
+// Package repository — слой доступа к данным: подключение к PostgreSQL
+// через GORM и репозитории для слотов и записей на консультации.
 package repository
 
 import (
@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewDB opens a PostgreSQL connection using dsn and runs auto-migration
-// for every entity in internal/models, creating or updating tables as
-// needed. Call this once at startup (see cmd/server/main.go).
+// NewDB открывает соединение с PostgreSQL по dsn и прогоняет
+// автомиграцию для всех сущностей из internal/models, создавая или
+// обновляя таблицы. Вызывается один раз при старте (см. cmd/server/main.go).
 func NewDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

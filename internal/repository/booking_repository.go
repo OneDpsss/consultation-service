@@ -9,34 +9,33 @@ import (
 )
 
 var (
-	// ErrSlotFull is returned by CreateBooking when the slot's capacity
-	// is already reached (ТЗ 3.2.1 — запрет записи двух студентов на один
-	// и тот же индивидуальный слот).
+	// ErrSlotFull возвращается из CreateBooking, когда в слоте больше нет
+	// свободных мест.
 	ErrSlotFull = errors.New("slot has no free capacity")
 
-	// ErrSlotOverlap is returned by SlotRepository.CreateSlot when the new
-	// slot's time range overlaps an existing slot of the same teacher.
+	// ErrSlotOverlap возвращается из SlotRepository.CreateSlot, если новый
+	// слот по времени пересекается с уже существующим слотом того же
+	// преподавателя.
 	ErrSlotOverlap = errors.New("slot overlaps with an existing one for this teacher")
 )
 
-// BookingRepository is the data-access layer for student bookings.
+// BookingRepository — слой доступа к данным для записей студентов.
 type BookingRepository struct {
 	db *gorm.DB
 }
 
-// NewBookingRepository creates a BookingRepository over the given GORM
-// connection.
+// NewBookingRepository создаёт BookingRepository поверх переданного
+// подключения GORM.
 func NewBookingRepository(db *gorm.DB) *BookingRepository {
 	return &BookingRepository{db: db}
 }
 
-// CreateBooking books slotID for studentID.
+// CreateBooking записывает студента studentID на слот slotID.
 //
-// The capacity check and insert run inside a single transaction with a
-// row-level lock (FOR UPDATE) on the slot, so two concurrent requests
-// cannot both pass the check and overbook the same slot — this is what
-// enforces ТЗ 3.2.1 at the database level, not just in application code.
-// Returns ErrSlotFull if the slot has no free capacity.
+// Проверка вместимости и вставка выполняются в одной транзакции с
+// блокировкой строки слота (FOR UPDATE), поэтому два одновременных
+// запроса не смогут оба пройти проверку и переполнить один и тот же
+// слот. Если свободных мест нет, возвращает ErrSlotFull.
 func (r *BookingRepository) CreateBooking(studentID, slotID uint) (*models.Booking, error) {
 	var booking models.Booking
 
@@ -71,25 +70,23 @@ func (r *BookingRepository) CreateBooking(studentID, slotID uint) (*models.Booki
 	return &booking, nil
 }
 
-// CancelBooking marks bookingID as cancelled, but only if it belongs to
-// studentID — the WHERE clause doubles as an ownership check, so one
-// student cannot cancel another student's booking by guessing an id.
+// CancelBooking отмечает запись bookingID как отменённую, но только если
+// она принадлежит studentID — условие в WHERE заодно проверяет
+// владельца, так что один студент не может отменить чужую запись,
+// подобрав id.
 //
-// It is not an error if no row matches (wrong id, wrong owner, or an
-// already-cancelled booking): GORM reports 0 rows affected without
-// returning an error, so the caller gets a nil error either way. The
-// handler layer treats this as success, matching ТЗ 3.1.1 "Отменить
-// запись на консультацию".
+// Если ни одна строка не подошла (неверный id, чужая запись или запись
+// уже отменена) — это не считается ошибкой: GORM в таком случае просто
+// сообщает 0 затронутых строк, err остаётся nil.
 func (r *BookingRepository) CancelBooking(bookingID, studentID uint) error {
 	return r.db.Model(&models.Booking{}).
 		Where("id = ? AND student_id = ?", bookingID, studentID).
 		Update("status", models.BookingCancelled).Error
 }
 
-// ListByStudent returns every booking made by studentID, each with its
-// ConsultationSlot preloaded, so callers get the slot's time/discipline
-// data without a second query. Used by the "просмотр студентом списка
-// своих записей" use case (ТЗ 3.1.1).
+// ListByStudent возвращает все записи студента studentID вместе с
+// предзагруженным слотом (Slot), чтобы не делать по нему отдельный
+// запрос.
 func (r *BookingRepository) ListByStudent(studentID uint) ([]models.Booking, error) {
 	var bookings []models.Booking
 	err := r.db.Preload("Slot").Where("student_id = ?", studentID).Find(&bookings).Error

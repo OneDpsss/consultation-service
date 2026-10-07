@@ -1,12 +1,11 @@
-// Package models defines the domain model of the consultation booking
-// system: User and its roles, Department, Discipline, ConsultationSlot,
-// Booking, Notification — the same model described in Приложение Б
-// технического задания.
+// Package models описывает доменную модель сервиса записи на консультации:
+// пользователей и их роли, кафедры, дисциплины, слоты консультаций, записи
+// студентов и уведомления.
 package models
 
 import "time"
 
-// Role is a user role in the system.
+// Role — роль пользователя в системе.
 type Role string
 
 const (
@@ -15,14 +14,13 @@ const (
 	RoleAdmin   Role = "admin"   // администратор
 )
 
-// User is the generalized entity holding login data.
+// User — базовая сущность с данными для входа в систему.
 //
-// Student and Teacher are not separate Go types (unlike the UML model in
-// the ТЗ) — they are represented by the Role field instead. This is a
-// deliberate simplification for relational storage: one users table
-// instead of table-per-subtype inheritance.
+// Студент и преподаватель не выделены в отдельные типы — роль хранится
+// в поле Role. Так проще: одна таблица users вместо отдельных таблиц
+// на каждую роль.
 type User struct {
-	ID           uint   // идентификатор пользователя
+	ID           uint
 	Email        string `gorm:"uniqueIndex;not null"` // логин (email)
 	PasswordHash string `gorm:"not null"`             // хеш пароля
 	FullName     string `gorm:"not null"`             // ФИО
@@ -30,23 +28,21 @@ type User struct {
 	CreatedAt    time.Time
 }
 
-// TeacherProfile is a derived entity that embeds User and adds the
-// teacher's department. Go has no class inheritance, so embedding is the
-// idiomatic equivalent — TeacherProfile gets all of User's fields plus
-// its own.
+// TeacherProfile расширяет User данными, специфичными для преподавателя
+// (кафедра). Встраивание User даёт TeacherProfile все его поля плюс свои.
 type TeacherProfile struct {
 	User
 	DepartmentID uint
 	Department   Department `gorm:"foreignKey:DepartmentID"`
 }
 
-// Department is a кафедра of the educational organization.
+// Department — кафедра.
 type Department struct {
 	ID   uint
 	Name string `gorm:"not null"`
 }
 
-// Discipline is a учебная дисциплина tied to a department.
+// Discipline — учебная дисциплина, привязанная к кафедре.
 type Discipline struct {
 	ID           uint
 	Name         string `gorm:"not null"`
@@ -54,11 +50,8 @@ type Discipline struct {
 	Department   Department `gorm:"foreignKey:DepartmentID"`
 }
 
-// ConsultationSlot is a time interval a teacher opens for a consultation
-// on a discipline.
-//
-// It links a Teacher, a Discipline, and a start/end time — exactly as
-// described in the domain model of the ТЗ (Приложение Б).
+// ConsultationSlot — временной интервал, который преподаватель открывает
+// для консультации по дисциплине.
 type ConsultationSlot struct {
 	ID           uint
 	TeacherID    uint `gorm:"not null;index"`
@@ -67,10 +60,10 @@ type ConsultationSlot struct {
 	Discipline   Discipline `gorm:"foreignKey:DisciplineID"`
 	StartsAt     time.Time  `gorm:"not null"`
 	EndsAt       time.Time  `gorm:"not null"`
-	Capacity     int        `gorm:"not null;default:1"` // число студентов, вмещаемых слотом
+	Capacity     int        `gorm:"not null;default:1"` // сколько студентов вмещает слот
 }
 
-// BookingStatus is the status of a student's booking.
+// BookingStatus — статус записи студента на консультацию.
 type BookingStatus string
 
 const (
@@ -79,8 +72,8 @@ const (
 	BookingDone      BookingStatus = "done"      // консультация проведена
 )
 
-// Booking links a student to a specific consultation and tracks its
-// status. A Notification is created whenever that status changes.
+// Booking связывает студента с конкретной консультацией и хранит статус
+// записи. При смене статуса создаётся Notification.
 type Booking struct {
 	ID        uint
 	StudentID uint             `gorm:"not null;index"`
@@ -91,8 +84,8 @@ type Booking struct {
 	CreatedAt time.Time
 }
 
-// Notification informs a user about an event tied to a booking or a
-// consultation slot (created, changed, cancelled — п. 3.1.1 ТЗ).
+// Notification — уведомление пользователю о событии, связанном с записью
+// или слотом (создание, изменение, отмена).
 type Notification struct {
 	ID        uint
 	UserID    uint   `gorm:"not null;index"`

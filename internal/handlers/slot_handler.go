@@ -15,28 +15,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// SlotHandler implements the "Создать консультационный слот" and
-// "Просмотреть список записавшихся студентов" use cases (teacher side).
+// SlotHandler обрабатывает создание слотов консультаций и просмотр
+// списка слотов преподавателя.
 type SlotHandler struct {
 	repo *repository.SlotRepository
 }
 
-// NewSlotHandler creates a SlotHandler backed by the given repository.
+// NewSlotHandler создаёт SlotHandler поверх переданного репозитория.
 func NewSlotHandler(repo *repository.SlotRepository) *SlotHandler {
 	return &SlotHandler{repo: repo}
 }
 
-// createSlotRequest is the JSON body expected by Create.
+// createSlotRequest — тело JSON-запроса, которое ожидает Create.
 type createSlotRequest struct {
 	TeacherID    uint      `json:"teacher_id"`    // идентификатор преподавателя-владельца слота
 	DisciplineID uint      `json:"discipline_id"` // идентификатор дисциплины
 	StartsAt     time.Time `json:"starts_at"`     // время начала консультации
 	EndsAt       time.Time `json:"ends_at"`       // время окончания консультации
-	Capacity     int       `json:"capacity"`      // число студентов, вмещаемых слотом; <=0 трактуется как 1
+	Capacity     int       `json:"capacity"`      // сколько студентов вмещает слот; <=0 трактуется как 1
 }
 
-// Create handles POST /slots — создание преподавателем нового
-// консультационного слота. Request body is JSON (see createSlotRequest).
+// Create обрабатывает POST /slots — создание преподавателем нового слота
+// консультации.
 func (h *SlotHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req createSlotRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -68,8 +68,8 @@ func (h *SlotHandler) Create(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, slot)
 }
 
-// ListByTeacher handles GET /teachers/{id}/slots — список слотов
-// преподавателя (path-параметр "id" — идентификатор преподавателя).
+// ListByTeacher обрабатывает GET /teachers/{id}/slots — список слотов
+// преподавателя (параметр пути "id" — идентификатор преподавателя).
 func (h *SlotHandler) ListByTeacher(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, err := strconv.ParseUint(idStr, 10, 64)

@@ -1,19 +1,19 @@
-// Package config loads the service's runtime settings (listen address,
-// database DSN) from environment variables, falling back to development
-// defaults when a variable is not set.
+// Package config загружает настройки сервиса (адрес, на котором слушать,
+// строку подключения к БД) из переменных окружения, подставляя значения
+// по умолчанию для локальной разработки, если переменная не задана.
 package config
 
 import "os"
 
-// Config holds runtime settings loaded from env vars.
+// Config — настройки, с которыми запускается сервис.
 type Config struct {
-	HTTPAddr string // адрес и порт, на котором слушает HTTP-сервер (HTTP_ADDR)
-	DSN      string // postgres DSN (DSN)
+	HTTPAddr string // адрес и порт HTTP-сервера (переменная HTTP_ADDR)
+	DSN      string // строка подключения к PostgreSQL (переменная DSN)
 }
 
-// Load reads HTTP_ADDR and DSN from the environment and returns a Config,
-// substituting development-friendly defaults (":8080" and a local
-// PostgreSQL DSN) for whichever variable is unset or empty.
+// Load читает HTTP_ADDR и DSN из окружения и собирает Config, подставляя
+// вместо незаданных переменных значения по умолчанию (":8080" и DSN для
+// локального PostgreSQL).
 func Load() Config {
 	return Config{
 		HTTPAddr: getEnv("HTTP_ADDR", ":8080"),
@@ -21,8 +21,8 @@ func Load() Config {
 	}
 }
 
-// getEnv returns the value of the env var key, or fallback if it is unset
-// or empty.
+// getEnv возвращает значение переменной окружения key или fallback,
+// если переменная не задана или пуста.
 func getEnv(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
