@@ -8,7 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var ErrSlotFull = errors.New("slot has no free capacity")
+var (
+	ErrSlotFull    = errors.New("slot has no free capacity")
+	ErrSlotOverlap = errors.New("slot overlaps with an existing one for this teacher")
+)
 
 type BookingRepository struct {
 	db *gorm.DB
